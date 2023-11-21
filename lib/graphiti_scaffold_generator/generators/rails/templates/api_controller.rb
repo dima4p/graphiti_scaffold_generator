@@ -1,7 +1,5 @@
 <% resource = class_name + 'Resource' -%>
 <% pundit = defined?(Pundit) -%>
-# resource = <%= resource %>
-# pundit = <%= pundit %>
 <% module_namespacing do -%>
 class <%= controller_class_name %>Controller < ApplicationController
   before_action :set_<%= pundit ? 'and_authorise_' : '' %><%= singular_table_name %>, only: %i[ show update destroy ]
