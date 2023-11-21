@@ -57,6 +57,16 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
     {}
   }
 
+<% if pundit -%>
+  before do
+    allow_any_instance_of(GraphitiApiController).to receive(:authorize)
+        .and_return UserAbsence
+    allow_any_instance_of(GraphitiApiController).to receive(:current_user)
+        .and_return(user)
+    allow_any_instance_of(GraphitiApiController).to receive :authenticate_user!
+  end
+<% end -%>
+
 <% unless options[:singleton] -%>
   describe 'GET /index' do
     it "renders a successful response" do
@@ -152,10 +162,10 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
         attributes: new_attributes,
       }
     end
-    let(:new_attributes) {
+    let(:new_attributes) do
       skip("Add a hash of attributes valid for <%= class_name %>")
       {  <%= attribute_name %>: 'New <%= attribute_name %>' }
-    }
+    end
 
     context "with valid parameters" do
       it "updates the requested <%= file_name %>" do

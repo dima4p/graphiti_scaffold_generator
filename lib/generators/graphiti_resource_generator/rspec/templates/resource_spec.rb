@@ -22,7 +22,6 @@
   end
   all_attributes = id_attr + all_attributes
 -%>
-
 <% if File.exist?(File.join %w[spec rails_helper.rb]) -%>
 require 'rails_helper'
 <% else -%>
