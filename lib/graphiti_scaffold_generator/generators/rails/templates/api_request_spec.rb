@@ -9,12 +9,12 @@ require 'spec_helper'
 <% module_namespacing do -%>
 describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request) %> do
 <% if fbot -%>
-  let(:<%= file_name %>) { create :<%= file_name %> }
+  let(:<%= singular_name %>) { create :<%= singular_name %> }
 <%   if pundit -%>
   let(:user) { create :user }
 <%   end -%>
 <% else -%>
-  let(:<%= file_name %>) { <%= class_name %>.create! valid_attributes }
+  let(:<%= singular_name %>) { <%= class_name %>.create! valid_attributes }
 <% end -%>
 
   # This should return the minimal set of attributes required to create a valid
@@ -27,7 +27,7 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
 <% attribute_name = attribute.respond_to?(:column_name) ? attribute.column_name : attribute.name -%>
 <% if links.present? -%>
   let(:valid_attributes) do
-    attributes_for(:<%=file_name%>)
+    attributes_for(:<%=singular_name%>)
       .slice(*%i[<%= attribute_name %>])
       .merge(
 <% links.each do |relation| -%>
@@ -36,7 +36,7 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
       )
   end
 <% else -%>
-  let(:valid_attributes) {attributes_for(:<%=file_name%>).slice *%i[<%= attribute_name %>]}
+  let(:valid_attributes) {attributes_for(:<%=singular_name%>).slice *%i[<%= attribute_name %>]}
 <% end -%>
 <% else -%>
   let(:valid_attributes) {
@@ -69,20 +69,50 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
 
 <% unless options[:singleton] -%>
   describe 'GET /index' do
+    subject(:get_index) do
+      get <%= plural_name %>_url, headers: valid_headers, as: :json
+    end
+
+    before do
+      <%= singular_name %>
+    end
+
     it "renders a successful response" do
-      <%= class_name %>.create! valid_attributes
-      get <%= index_helper %>_url, headers: valid_headers, as: :json
+      get_index
       expect(response).to be_successful
+    end
+
+    it 'renders content_type "application/vnd.api+json; charset=utf-8"' do
+      get_index
+      expect(response.content_type).to eq("application/vnd.api+json; charset=utf-8")
+    end
+
+    it "renders a JSON response with an Array of UserAbsences" do
+      get_index
+      expect(JSON.parse(response.body)['data']).to be_an Array
+      expect(JSON.parse(response.body)['data'].first['id']).to eq <%= singular_name %>.id
     end
   end
 <% end -%>
 
   describe 'GET /show' do
-    subject(:get_show) { get <%= show_helper %> }
+    subject(:get_show) do
+      get <%= singular_name %>_url(<%= singular_name %>), headers: valid_headers, as: :json
+    end
 
     it "renders a successful response" do
       get_show
       expect(response).to be_successful
+    end
+
+    it 'renders content_type "application/vnd.api+json; charset=utf-8"' do
+      get_show
+      expect(response.content_type).to eq("application/vnd.api+json; charset=utf-8")
+    end
+
+    it "renders a JSON response with the requested <%= singular_name %>" do
+      get_show
+      expect(JSON.parse(response.body)['data']['id']).to eq <%= singular_name %>.id
     end
   end
 
@@ -116,7 +146,7 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
         expect(response.content_type).to eq("application/vnd.api+json; charset=utf-8")
       end
 
-      it "renders a JSON response with the new <%= file_name %>" do
+      it "renders a JSON response with the new <%= singular_name %>" do
         post_create
         expect(JSON.parse(response.body)['data']['id'])
             .to eq <%= class_name %>.order(:created_at).last.id
@@ -140,7 +170,7 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
         expect(response.content_type).to eq("application/vnd.api+json; charset=utf-8")
       end
 
-      it 'renders a JSON response with errors for the new <%= file_name %>' do
+      it 'renders a JSON response with errors for the new <%= singular_name %>' do
         post_create
         expect(JSON.parse(response.body).dig 'errors', 0, 'meta', 'attribute')
             .to be_present
@@ -150,15 +180,15 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
 
   describe 'PATCH /update' do
     subject(:patch_update) do
-      patch <%= file_name %>_url(<%= file_name %>),
+      patch <%= singular_name %>_url(<%= singular_name %>),
             params: { data: data },
             headers: valid_headers,
             as: :json
     end
     let(:data) do
       {
-        id: <%= file_name %>.id.to_s,
-        type: '<%= file_name %>s',
+        id: <%= singular_name %>.id.to_s,
+        type: '<%= singular_name %>s',
         attributes: new_attributes,
       }
     end
@@ -168,11 +198,11 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
     end
 
     context "with valid parameters" do
-      it "updates the requested <%= file_name %>" do
+      it "updates the requested <%= singular_name %>" do
         patch_update
-        <%= file_name %>.reload
+        <%= singular_name %>.reload
         skip("Add assertions for updated state")
-        expect(<%= file_name %>.<%= attribute_name %>). to eq 'New <%= attribute_name %>'
+        expect(<%= singular_name %>.<%= attribute_name %>). to eq 'New <%= attribute_name %>'
       end
 
       it 'returns :ok' do
@@ -185,17 +215,17 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
         expect(response.content_type).to eq("application/vnd.api+json; charset=utf-8")
       end
 
-      it "renders a JSON response with the <%= file_name %>" do
+      it "renders a JSON response with the <%= singular_name %>" do
         patch_update
-        expect(JSON.parse(response.body)['data']['id']).to eq <%= file_name %>.id
+        expect(JSON.parse(response.body)['data']['id']).to eq <%= singular_name %>.id
       end
     end
 
     context "with invalid parameters" do
       let(:new_attributes) { invalid_attributes }
 
-      it "does not update the requested <%= file_name %>" do
-        expect { patch_update }.not_to change <%= file_name %>, :reload
+      it "does not update the requested <%= singular_name %>" do
+        expect { patch_update }.not_to change <%= singular_name %>, :reload
       end
 
       it 'returns :unprocessable_entity' do
@@ -208,7 +238,7 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
         expect(response.content_type).to eq("application/vnd.api+json; charset=utf-8")
       end
 
-      it "renders a JSON response with errors for the new <%= file_name %>" do
+      it "renders a JSON response with errors for the new <%= singular_name %>" do
         patch_update
         expect(JSON.parse(response.body).dig 'errors', 0, 'meta', 'attribute')
             .to be_present
@@ -218,14 +248,14 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
 
   describe "DELETE /destroy" do
     subject(:delete_destroy) do
-      delete <%= file_name %>_url(id: <%= file_name %>.to_param)
+      delete <%= singular_name %>_url(id: <%= singular_name %>.to_param)
     end
 
     before do
-      <%= file_name %>  # we need something to destroy
+      <%= singular_name %>  # we need something to destroy
     end
 
-    it "destroys the requested <%= file_name %>" do
+    it "destroys the requested <%= singular_name %>" do
       expect { delete_destroy }.to change(<%= class_name %>, :count).by -1
     end
 
