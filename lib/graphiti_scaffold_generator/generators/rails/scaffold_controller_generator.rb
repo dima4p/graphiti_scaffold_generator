@@ -17,6 +17,9 @@ end
 module Rspec
   module Generators
     class ScaffoldGenerator < Base
+      class_option :api_version, type: :string,
+          desc: "Defines the version of the api'",
+          default: 'v1'
       source_paths.unshift File.expand_path('../templates', __FILE__)
     end
   end

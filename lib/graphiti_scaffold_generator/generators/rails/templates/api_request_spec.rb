@@ -164,7 +164,7 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
     end
     let(:new_attributes) do
       skip("Add a hash of attributes valid for <%= class_name %>")
-      {  <%= attribute_name %>: 'New <%= attribute_name %>' }
+      { <%= attribute_name %>: 'New <%= attribute_name %>' }
     end
 
     context "with valid parameters" do
@@ -172,7 +172,7 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
         patch_update
         <%= file_name %>.reload
         skip("Add assertions for updated state")
-        <%= file_name %>.<%= attribute_name %> == 'New <%= attribute_name %>'
+        expect(<%= file_name %>.<%= attribute_name %>). to eq 'New <%= attribute_name %>'
       end
 
       it 'returns :ok' do
