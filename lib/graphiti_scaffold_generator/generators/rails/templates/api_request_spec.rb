@@ -60,7 +60,7 @@ describe "Request /<%= name.underscore.pluralize %>", <%= type_metatag(:request)
 <% if pundit -%>
   before do
     allow_any_instance_of(GraphitiApiController).to receive(:authorize)
-        .and_return UserAbsence
+        .and_return <%= class_name %>
     allow_any_instance_of(GraphitiApiController).to receive(:current_user)
         .and_return(user)
     allow_any_instance_of(GraphitiApiController).to receive :authenticate_user!
