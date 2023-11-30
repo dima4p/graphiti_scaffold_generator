@@ -14,6 +14,8 @@
           type ||= primary_key_type || :integer
           name += '_id'
           type
+        when :json, :json
+          type = :hash
         when :text
           type = :string
       end
