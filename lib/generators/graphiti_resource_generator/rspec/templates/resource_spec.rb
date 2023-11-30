@@ -37,10 +37,10 @@ describe '<%= class_name %>Resource', type: :resource do
     subject(:attributes) { config[:attributes] }
 
     it 'equal to [<%= all_attributes.map{|a| ":#{a.first}"}.join ", " %>]' do
-      expect(attributes.keys)
+      expect(attributes.keys.sort)
           .to eq %i[
             <%= all_attributes.map(&:first).join "\n            " %>
-          ]
+          ].sort
     end
 <% all_attributes.each do |name, type| -%>
 
@@ -55,8 +55,8 @@ describe '<%= class_name %>Resource', type: :resource do
         expect(attr_<%= name %>[:filterable]).to be <%= name == 'id' %>
       end
 
-      it 'is readable' do
-        expect(attr_<%= name %>[:readable]).to be true
+      it 'is <%= name == 'id' ? 'not' : ' ' %>readable' do
+        expect(attr_<%= name %>[:readable]).to be <%= name != 'id' %>
       end
 
       it 'is not writable' do
