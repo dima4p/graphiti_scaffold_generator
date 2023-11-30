@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    graphiti_scaffold_generator (0.1.8)
+    graphiti_scaffold_generator (0.1.9)
 
 GEM
   remote: https://rubygems.org/

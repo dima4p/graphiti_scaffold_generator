@@ -55,7 +55,7 @@ describe '<%= class_name %>Resource', type: :resource do
         expect(attr_<%= name %>[:filterable]).to be <%= name == 'id' %>
       end
 
-      it 'is <%= name == 'id' ? 'not' : ' ' %>readable' do
+      it 'is <%= name == 'id' ? 'not ' : '' %>readable' do
         expect(attr_<%= name %>[:readable]).to be <%= name != 'id' %>
       end
 
