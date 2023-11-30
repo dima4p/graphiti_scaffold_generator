@@ -14,7 +14,7 @@
           type ||= primary_key_type || :integer
           name += '_id'
           type
-        when :json, :json
+        when :json, :jsonb
           type = :hash
         when :text
           type = :string
